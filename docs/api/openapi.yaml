@@ -1,0 +1,95 @@
+openapi: 3.0.3
+info:
+  title: Agviano Backend (Agviano Core API - RESTful API)
+  version: 1.0.0
+  description: |
+    RESTful API untuk backend CMS dan Marketplace **PT Agviano**.
+    API ini menyediakan endpoint untuk autentikasi pengguna,
+    manajemen produk, dan transaksi order.
+    
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Development Server
+    
+tags:
+  - name: Auth
+    description: Endpoint untuk autentikasi dan otorisasi pengguna.
+  - name: Product
+    description: Endpoint untuk manajemen produk dan kategori.
+  - name: Order
+    description: Endpoint untuk transaksi dan pemesanan produk.
+
+paths:
+  /products:
+    get:
+      tags:
+        - Product
+      summary: Ambil semua produk
+      description: Mengembalikan daftar produk yang tersedia.
+      parameters:
+        - in: query
+          name: category
+          schema:
+            type: string
+          description: Filter produk berdasarkan kategori
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Daftar produk berhasil diambil.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProductList'
+
+components:
+  schemas:
+    # === Product Schema ===
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        image_url:
+          type: string
+        category:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # === Response Wrapper Schema ===
+    ResponseBase:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        message:
+          type: string
+          example: sukses
+
+    ResponseProductList:
+      allOf:
+        - $ref: '#/components/schemas/ResponseBase'
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
