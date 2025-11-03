@@ -49,6 +49,125 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseProductList'
+    post:
+      tags:
+        - Product
+      summary: Tambah produk baru
+      description: Menambahkan produk baru.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+      responses:
+        '201':
+          description: Produk berhasil ditambahkan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCreated'
+        '400':
+          description: Data tidak valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+  
+  /products/{productId}:
+    get:
+      tags:
+        - Product
+      summary: Ambil detail produk
+      description: Mengembalikan detail produk berdasarkan ID.
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+            example: 1
+          description: ID dari produk yang ingin diambil.
+      responses:
+        '200':
+          description: Detail produk berhasil diambil.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProduct'
+        '404':
+          description: Produk tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+
+    put:
+      tags:
+        - Product
+      summary: Update produk
+      description: Memperbarui informasi produk berdasarkan ID.
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+            example: 1
+          description: ID dari produk yang ingin diperbarui.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+      responses:
+        '200':
+          description: Produk berhasil diperbarui.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseUpdated'
+        '400':
+          description: Data tidak valid.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+        '404':
+          description: Produk tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+
+    delete:
+      tags:
+        - Product
+      summary: Hapus produk
+      description: Menghapus produk berdasarkan ID.
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: integer
+            example: 1
+          description: ID dari produk yang ingin dihapus.
+      responses:
+        '200':
+          description: Produk berhasil dihapus.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDeleted'
+        '404':
+          description: Produk tidak ditemukan.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseError'
+
 
 components:
   schemas:
@@ -72,6 +191,53 @@ components:
         created_at:
           type: string
           format: date-time
+          
+    # === Request Wrapper Schema ====
+    ProductCreateRequest:
+      type: object
+      required:
+        - name 
+        - price
+        - category
+      properties:
+        name:
+          type: string
+          example: "Produk Baru"
+        description:
+          type: string
+          example: "Deskripsi produk baru"
+        price:
+          type: number
+          format: float
+          example: 150000.00
+        image_url:
+          type: string
+        category:
+          type: string
+          example: "Kategori Produk Baru"
+
+    ProductUpdateRequest:
+      type: object
+      required:
+        - name 
+        - price
+        - category
+      properties:
+        name:
+          type: string
+          example: "Produk Diperbarui"
+        description:
+          type: string
+          example: "Deskripsi produk diperbarui"
+        price:
+          type: number
+          format: float
+          example: 175000.00
+        image_url:
+          type: string
+        category:
+          type: string
+          example: "Kategori Produk Diperbarui"
 
     # === Response Wrapper Schema ===
     ResponseBase:
@@ -84,6 +250,21 @@ components:
           type: string
           example: sukses
 
+    ResponseError:  
+      allOf:
+        - $ref: '#/components/schemas/ResponseBase'
+        - type: object
+          properties:
+            status:
+              type: string
+              example: error
+            message:
+              type: string
+              example: "Data tidak valid"
+            data:
+              type: object
+              nullable: true
+
     ResponseProductList:
       allOf:
         - $ref: '#/components/schemas/ResponseBase'
@@ -93,3 +274,54 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Product'
+                
+    ResponseCreated:
+      allOf:
+        - $ref: '#/components/schemas/ResponseBase'
+        - type: object
+          properties:
+            status:
+              type: string
+              example: created
+            message:
+              type: string
+              example: "Data Berhasil Dibuat"
+            data:
+              $ref: '#/components/schemas/Product'
+
+    ResponseProduct:
+      allOf:
+        - $ref: '#/components/schemas/ResponseBase'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/Product'
+
+    ResponseUpdated:
+      allOf:
+        - $ref: '#/components/schemas/ResponseBase'
+        - type: object
+          properties:
+            status:
+              type: string
+              example: updated
+            message:
+              type: string
+              example: "Data Berhasil Diperbarui"
+            data:
+              $ref: '#/components/schemas/Product'
+    
+    ResponseDeleted:
+      allOf:
+        - $ref: '#/components/schemas/ResponseBase'
+        - type: object
+          properties:
+            status:
+              type: string
+              example: deleted
+            message:
+              type: string
+              example: "Data Berhasil Dihapus"
+            data:
+              type: object
+              nullable: true
