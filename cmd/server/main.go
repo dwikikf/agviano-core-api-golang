@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	// Application entry point
 	config, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatalf("❌ Gagal memuat konfigurasi: %v", err)
