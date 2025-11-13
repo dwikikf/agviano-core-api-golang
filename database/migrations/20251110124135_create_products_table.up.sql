@@ -1,6 +1,6 @@
 CREATE TABLE products (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    category_id INT UNSIGNED,
+    category_id BIGINT UNSIGNED,
     name VARCHAR(150) NOT NULL,
     slug VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,

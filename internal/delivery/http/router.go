@@ -1,16 +1,37 @@
 package http
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/dwikikf/agviano-core-api-golang/internal/delivery/http/handler"
+	"github.com/gin-gonic/gin"
+)
 
-func NewRouter() *gin.Engine {
-	router := gin.Default()
+func NewRouter(CategoryHandler *handler.CategoryHandler, ProductHandler *handler.ProductHandler) *gin.Engine {
+	r := gin.Default()
+
+	category := r.Group("/categories")
+	{
+		category.GET("/", CategoryHandler.FindAll)
+		category.GET("/:id", CategoryHandler.FindByID)
+		category.POST("/", CategoryHandler.Create)
+		category.PUT("/:id", CategoryHandler.Update)
+		// category.DELETE("/:id", CategoryHandler.Delete)
+	}
+
+	product := r.Group("/products")
+	{
+		product.GET("/", ProductHandler.FindAll)
+		product.GET("/:id", ProductHandler.FindByID)
+		product.POST("/", ProductHandler.Create)
+		product.PUT("/:id", ProductHandler.Update)
+		product.DELETE("/", ProductHandler.Delete)
+	}
 
 	// ping check
-	router.GET("/ping", func(c *gin.Context) {
+	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	return router
+	return r
 }

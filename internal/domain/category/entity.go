@@ -1,6 +1,8 @@
-package entity
+package domain
 
 import "time"
+
+// gorm sementara untuk percepat development
 
 type Category struct {
 	ID        uint64    `json:"id" gorm:"primaryKey;autoIncrement"`
