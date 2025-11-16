@@ -20,11 +20,7 @@ func NewCategoryHandler(uc domainCat.Usecase) *CategoryHandler {
 func (h *CategoryHandler) FindAll(c *gin.Context) {
 	list, err := h.uc.GetAll(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to get categories",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -47,27 +43,13 @@ func (h *CategoryHandler) FindByID(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, web.WebResponse{
 			Code:    http.StatusBadRequest,
 			Message: "Invalid category ID",
-			Data:    nil,
 		})
 		return
 	}
 
 	cat, err := h.uc.GetByID(c.Request.Context(), idUint)
 	if err != nil {
-		if err == domainCat.ErrNotFound {
-			c.JSON(http.StatusNotFound, web.WebResponse{
-				Code:    http.StatusNotFound,
-				Message: "Category not found",
-				Data:    nil,
-			})
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to get category",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -80,28 +62,24 @@ func (h *CategoryHandler) FindByID(c *gin.Context) {
 
 func (h *CategoryHandler) Create(c *gin.Context) {
 	var req web.CategoryCreateRequest
+
+	// validation
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, web.WebResponse{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request payload",
-			Data:    nil,
-		})
+		c.Error(err) //midlleware
 		return
 	}
 
-	newCat, err := h.uc.Create(c.Request.Context(), &domainCat.CreateCatData{
-		Name: req.Name,
-	})
+	// logic
+	newCat, err := h.uc.Create(
+		c.Request.Context(),
+		&domainCat.CreateCatData{Name: req.Name})
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to create category",
-			Data:    nil,
-		})
+		c.Error(err) //midlleware
 		return
 	}
 
+	// response
 	c.JSON(http.StatusCreated, web.WebResponse{
 		Code:    http.StatusCreated,
 		Message: "Category created successfully",
@@ -116,18 +94,13 @@ func (h *CategoryHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, web.WebResponse{
 			Code:    http.StatusBadRequest,
 			Message: "Invalid category ID",
-			Data:    nil,
 		})
 		return
 	}
 
 	var req web.CategoryUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, web.WebResponse{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request payload",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -137,20 +110,7 @@ func (h *CategoryHandler) Update(c *gin.Context) {
 	})
 
 	if err != nil {
-		if err == domainCat.ErrNotFound {
-			c.JSON(http.StatusNotFound, web.WebResponse{
-				Code:    http.StatusNotFound,
-				Message: "Category not found",
-				Data:    nil,
-			})
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to update category",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 

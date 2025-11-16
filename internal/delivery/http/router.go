@@ -2,11 +2,15 @@ package http
 
 import (
 	"github.com/dwikikf/agviano-core-api-golang/internal/delivery/http/handler"
+	"github.com/dwikikf/agviano-core-api-golang/internal/delivery/http/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func NewRouter(CategoryHandler *handler.CategoryHandler, ProductHandler *handler.ProductHandler) *gin.Engine {
 	r := gin.Default()
+
+	r.Use(middleware.ErrorHandler())
+	// r.Use(gin.Logger())
 
 	category := r.Group("/categories")
 	{

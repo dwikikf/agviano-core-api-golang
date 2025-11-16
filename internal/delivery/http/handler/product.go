@@ -20,11 +20,7 @@ func NewProductHandler(uc domainProd.Usecase) *ProductHandler {
 func (h *ProductHandler) FindAll(c *gin.Context) {
 	res, err := h.uc.GetAll(c.Request.Context())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to get products",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -47,27 +43,13 @@ func (h *ProductHandler) FindByID(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, web.WebResponse{
 			Code:    http.StatusBadRequest,
 			Message: "Invalid product ID",
-			Data:    nil,
 		})
 		return
 	}
 
 	prod, err := h.uc.GetByID(c.Request.Context(), prodID)
 	if err != nil {
-		if err == domainProd.ErrNotFound {
-			c.JSON(http.StatusNotFound, web.WebResponse{
-				Code:    http.StatusNotFound,
-				Message: "Product not found",
-				Data:    nil,
-			})
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to get product",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -79,13 +61,10 @@ func (h *ProductHandler) FindByID(c *gin.Context) {
 }
 
 func (h *ProductHandler) Create(c *gin.Context) {
-	req := web.ProductCreateRequest{}
+	var req web.ProductCreateRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, web.WebResponse{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request payload",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -102,12 +81,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 
 	newProd, err := h.uc.Create(c.Request.Context(), input)
 	if err != nil {
-		// log.Println(err)
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to create product",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -125,18 +99,13 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, web.WebResponse{
 			Code:    http.StatusBadRequest,
 			Message: "Invalid product ID",
-			Data:    nil,
 		})
 		return
 	}
 
 	var req web.ProductUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, web.WebResponse{
-			Code:    http.StatusBadRequest,
-			Message: "Invalid request payload",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
 	}
 
@@ -154,21 +123,9 @@ func (h *ProductHandler) Update(c *gin.Context) {
 
 	updatedProd, err := h.uc.Update(c.Request.Context(), input)
 	if err != nil {
-		if err == domainProd.ErrNotFound {
-			c.JSON(http.StatusNotFound, web.WebResponse{
-				Code:    http.StatusNotFound,
-				Message: "Product not found",
-				Data:    nil,
-			})
-			return
-		}
-
-		c.JSON(http.StatusInternalServerError, web.WebResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "Failed to update product",
-			Data:    nil,
-		})
+		c.Error(err)
 		return
+
 	}
 
 	c.JSON(http.StatusOK, web.WebResponse{
