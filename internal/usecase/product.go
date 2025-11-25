@@ -16,12 +16,12 @@ func NewProductService(repo domainProd.Repository, catRepo domainCat.Repository)
 	return &ProductUsecase{repo, catRepo}
 }
 
-func (s *ProductUsecase) GetAll(ctx context.Context) ([]domainProd.Product, error) {
-	products, err := s.repo.FindAll(ctx)
+func (s *ProductUsecase) GetAll(ctx context.Context, page, size int) ([]domainProd.Product, int64, error) {
+	products, total, err := s.repo.FindAll(ctx, page, size)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return products, nil
+	return products, total, nil
 }
 
 func (s *ProductUsecase) GetByID(ctx context.Context, id uint64) (*domainProd.Product, error) {

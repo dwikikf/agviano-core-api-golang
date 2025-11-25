@@ -5,7 +5,7 @@ import (
 )
 
 type Repository interface {
-	FindAll(ctx context.Context) ([]Product, error)
+	FindAll(ctx context.Context, page, size int) ([]Product, int64, error)
 	FindByID(ctx context.Context, id uint64) (*Product, error)
 	Create(ctx context.Context, product *Product) (*Product, error)
 	Update(ctx context.Context, product *Product) (*Product, error)

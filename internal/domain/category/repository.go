@@ -5,7 +5,7 @@ import (
 )
 
 type Repository interface {
-	FindAll(ctx context.Context) ([]Category, error)
+	FindAll(ctx context.Context, page, size int) ([]Category, int64, error)
 	FindByID(ctx context.Context, id uint64) (*Category, error)
 	Create(ctx context.Context, category *Category) (*Category, error)
 	Update(ctx context.Context, category *Category) (*Category, error)

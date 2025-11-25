@@ -18,7 +18,19 @@ func NewCategoryHandler(uc domainCat.Usecase) *CategoryHandler {
 }
 
 func (h *CategoryHandler) FindAll(c *gin.Context) {
-	list, err := h.uc.GetAll(c.Request.Context())
+	// parse pagination query params
+	pageStr := c.DefaultQuery("page", "1")
+	sizeStr := c.DefaultQuery("size", "10")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
+	}
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size <= 0 {
+		size = 10
+	}
+
+	list, total, err := h.uc.GetAll(c.Request.Context(), page, size)
 	if err != nil {
 		c.Error(err)
 		return
@@ -29,10 +41,23 @@ func (h *CategoryHandler) FindAll(c *gin.Context) {
 		res = append(res, web.ToCategoryResponse(cat))
 	}
 
+	totalPages := 0
+	if size > 0 {
+		totalPages = int((total + int64(size) - 1) / int64(size))
+	}
+
+	pageMeta := web.PaginationMeta{
+		Page:       page,
+		Size:       size,
+		Total:      total,
+		TotalPages: totalPages,
+	}
+
 	c.JSON(http.StatusOK, web.WebResponse{
 		Code:    http.StatusOK,
 		Message: "Success get all categories",
 		Data:    res,
+		Meta:    pageMeta,
 	})
 }
 

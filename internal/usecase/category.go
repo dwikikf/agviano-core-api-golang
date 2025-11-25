@@ -15,14 +15,14 @@ func NewCategoryService(repo domainCat.Repository) domainCat.Usecase {
 	return &categoryUsecase{repo}
 }
 
-func (s *categoryUsecase) GetAll(ctx context.Context) ([]domainCat.Category, error) {
-	categories, err := s.repo.FindAll(ctx)
+func (s *categoryUsecase) GetAll(ctx context.Context, page, size int) ([]domainCat.Category, int64, error) {
+	categories, total, err := s.repo.FindAll(ctx, page, size)
 
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return categories, nil
+	return categories, total, nil
 }
 
 func (s *categoryUsecase) GetByID(ctx context.Context, id uint64) (*domainCat.Category, error) {

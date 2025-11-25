@@ -18,7 +18,19 @@ func NewProductHandler(uc domainProd.Usecase) *ProductHandler {
 }
 
 func (h *ProductHandler) FindAll(c *gin.Context) {
-	res, err := h.uc.GetAll(c.Request.Context())
+	// parse pagination params
+	pageStr := c.DefaultQuery("page", "1")
+	sizeStr := c.DefaultQuery("size", "10")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
+	}
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size <= 0 {
+		size = 10
+	}
+
+	res, total, err := h.uc.GetAll(c.Request.Context(), page, size)
 	if err != nil {
 		c.Error(err)
 		return
@@ -29,10 +41,23 @@ func (h *ProductHandler) FindAll(c *gin.Context) {
 		productsResp = append(productsResp, web.ToProductResponse(prod))
 	}
 
+	totalPages := 0
+	if size > 0 {
+		totalPages = int((total + int64(size) - 1) / int64(size))
+	}
+
+	pageMeta := web.PaginationMeta{
+		Page:       page,
+		Size:       size,
+		Total:      total,
+		TotalPages: totalPages,
+	}
+
 	c.JSON(http.StatusOK, web.WebResponse{
 		Code:    http.StatusOK,
 		Message: "Success get all products",
 		Data:    productsResp,
+		Meta:    pageMeta,
 	})
 }
 

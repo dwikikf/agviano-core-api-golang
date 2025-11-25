@@ -3,7 +3,7 @@ package domain
 import "context"
 
 type Usecase interface {
-	GetAll(ctx context.Context) ([]Product, error)
+	GetAll(ctx context.Context, page, size int) ([]Product, int64, error)
 	GetByID(ctx context.Context, id uint64) (*Product, error)
 	Create(ctx context.Context, data *CreateProductInput) (*Product, error)
 	Update(ctx context.Context, data *UpdateProductInput) (*Product, error)
